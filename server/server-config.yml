@@ -1,0 +1,31 @@
+kind: ConfigMap
+metadata:
+  name: server-config
+apiVersion: v1
+data:
+  init.sh: |-
+    #!/bin/bash
+    set -e
+    set -x
+    [ -d /mnt/data/server ] || mkdir /mnt/data/server
+    cp -Lur /etc/server-configmap/* /etc/server/
+    echo "locators=${LOCATORS}" >> /etc/server/gemfire.properties
+    export ONE_LOCATOR=`echo $LOCATORS | cut -d "[" -f 1`
+    while [ `nc -z ${ONE_LOCATOR} 10334` ]
+    do
+      sleep 1
+    done
+    
+
+      
+  gemfire.properties: |
+    #Logs and stats should be ~ 5GB
+    distributed-system-id=1
+    log-file=server.log
+    log-disk-space-limit=4096
+    log-file-size-limit=1024
+    statistic-sampling-enabled=true
+    statistic-archive-file=server.gfs
+    archive-file-size-limit=100
+    archive-disk-space-limit=1000
+    enable-time-statistics=true

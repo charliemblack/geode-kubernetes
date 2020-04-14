@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: locator
+spec:
+  selector:
+    matchLabels:
+      app: locator
+      storage: persistent
+  serviceName: "locator"
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: locator
+        storage: persistent
+      annotations:
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                      - locator
+              topologyKey: "kubernetes.io/hostname"
+      terminationGracePeriodSeconds: 10
+      initContainers:
+      - name: locator-config
+        image: apachegeode/geode
+        envFrom:
+        - configMapRef:
+            name: env-config
+        command: ['/bin/bash', '/etc/locator-configmap/init.sh']
+        volumeMounts:
+        - name: configmap
+          mountPath: /etc/locator-configmap
+        - name: config
+          mountPath: /etc/locator
+        - name: data
+          mountPath: /mnt/data
+      containers:
+      - name: locator
+        image: apachegeode/geode
+        envFrom:
+        - configMapRef:
+            name: env-config
+        command:
+        - sh
+        - "-c"
+        - |
+          /bin/bash <<'EOF'
+          unset GEODE_JVM_OPTS
+          if [ ! -z ${LOCATOR_JVM_OPTS+x} ] 
+          then
+            for n in ${LOCATOR_JVM_OPTS[@]}; 
+            do 
+              if [ -z ${GEODE_JVM_OPTS+x} ]
+              then
+                export GEODE_JVM_OPTS="--J=${n}" 
+              else
+                export GEODE_JVM_OPTS="${GEODE_JVM_OPTS} --J=$n"
+              fi
+            done
+          fi
+          /geode/bin/gfsh -e "start locator --name=${HOSTNAME}_locator --dir=/mnt/data/locator --properties-file=/etc/locator/gemfire.properties ${GEODE_JVM_OPTS}"
+          tail -n+1 -F /mnt/data/locator/locator.log
+          EOF
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - "-c"
+              - |
+                /bin/bash <<'EOF'
+                /geode/bin/gfsh -e "stop locator --dir=/mnt/data/locator"
+                tail -n+1 -F /mnt/data/locator/locator.log
+                EOF
+        ports:
+        - containerPort: 10334
+          name: locator
+        livenessProbe:
+          tcpSocket:
+            port: 10334
+          initialDelaySeconds: 10
+          failureThreshold: 20
+          periodSeconds: 10
+        volumeMounts:
+        - name: config
+          mountPath: /etc/locator
+        - name: data
+          mountPath: /mnt/data
+      volumes:
+      - name: configmap
+        configMap:
+          name: locator-config
+      - name: config
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: geode-storage
+      resources:
+        requests:
+          storage: 2Gi

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: locator
+spec:
+  ports:
+  # Note it was found I just need to have a port here - no need to enumerate ports
+  - port: 10334
+    name: locator
+  clusterIP: None
+  selector:
+    app: locator
+    storage: persistent

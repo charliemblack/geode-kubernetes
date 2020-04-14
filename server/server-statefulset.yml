@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: server
+spec:
+  selector:
+    matchLabels:
+      app: server
+      storage: persistent
+  serviceName: "server"
+  replicas: 6
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: server
+        storage: persistent
+      annotations:
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      terminationGracePeriodSeconds: 10
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                      - server
+              topologyKey: "kubernetes.io/hostname"
+      initContainers:
+      - name: server-config
+        image: apachegeode/geode
+        envFrom:
+        - configMapRef:
+            name: env-config
+        command: ['/bin/bash', '/etc/server-configmap/init.sh']
+        volumeMounts:
+        - name: configmap
+          mountPath: /etc/server-configmap
+        - name: config
+          mountPath: /etc/server
+        - name: data
+          mountPath: /mnt/data
+      containers:
+      - name: server
+        image: apachegeode/geode
+        envFrom:
+        - configMapRef:
+            name: env-config
+        command:
+        - sh
+        - "-c"
+        - |
+          /bin/bash <<'EOF'
+          unset GEODE_JVM_OPTS
+          if [ ! -z ${SERVER_JVM_OPTS+x} ] 
+          then
+            for n in ${SERVER_JVM_OPTS[@]}; 
+            do 
+              if [ -z ${GEODE_JVM_OPTS+x} ]
+              then
+                export GEODE_JVM_OPTS="--J=${n}" 
+              else
+                export GEODE_JVM_OPTS="${GEODE_JVM_OPTS} --J=$n"
+              fi
+            done
+          fi
+          echo "Starting Geode `date`" >> /mnt/data/server/server.log
+          /geode/bin/gfsh -e "start server --name=${HOSTNAME}_server --dir=/mnt/data/server --properties-file=/etc/server/gemfire.properties --locators=${LOCATORS} --critical-heap-percentage=85 --eviction-heap-percentage=75"
+          tail -n+1 -F /mnt/data/server/server.log
+          EOF
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - "-c"
+              - |
+                /bin/bash <<'EOF'
+                /geode/bin/gfsh -e "connect --locator=${LOCATORS}" -e "rebalance" -e "stop server --dir=/mnt/data/server"
+                echo "lifecycle prestop completed `date`" >> /mnt/data/server/server.log
+                EOF
+        ports:
+        - containerPort: 40404
+          name: locator
+        livenessProbe:
+          tcpSocket:
+            port: 50505
+          initialDelaySeconds: 10
+          failureThreshold: 20
+          periodSeconds: 10
+        volumeMounts:
+        - name: config
+          mountPath: /etc/server
+        - name: data
+          mountPath: /mnt/data
+      volumes:
+      - name: configmap
+        configMap:
+          name: server-config
+      - name: config
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      storageClassName: geode-storage
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 2Gi

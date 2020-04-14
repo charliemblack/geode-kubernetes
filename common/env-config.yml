@@ -1,0 +1,12 @@
+kind: ConfigMap
+metadata:
+  name: env-config
+apiVersion: v1
+data:
+  SERVER_JMV_OPTS: -mx6G -Xms6G -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60
+    -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSParallelRemarkEnabled -XX:+ScavengeBeforeFullGC
+    -XX:+CMSScavengeBeforeRemark
+  LOCATOR_JMV_OPTS: -Xmx1G -Xms1G -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60
+    -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSParallelRemarkEnabled -XX:+ScavengeBeforeFullGC
+    -XX:+CMSScavengeBeforeRemark
+  LOCATORS: locator-0.locator[10334],locator-1.locator[10334],locator-3.locator[10334]
