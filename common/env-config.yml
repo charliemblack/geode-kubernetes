@@ -3,7 +3,7 @@ metadata:
   name: env-config
 apiVersion: v1
 data:
-  SERVER_JMV_OPTS: -mx6G -Xms6G -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60
+  SERVER_JMV_OPTS: -mx2G -Xms2G -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60
     -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSParallelRemarkEnabled -XX:+ScavengeBeforeFullGC
     -XX:+CMSScavengeBeforeRemark
   LOCATOR_JMV_OPTS: -Xmx1G -Xms1G -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60

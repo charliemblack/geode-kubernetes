@@ -8,7 +8,7 @@ spec:
       app: server
       storage: persistent
   serviceName: "server"
-  replicas: 6
+  replicas: 4
   updateStrategy:
     type: RollingUpdate
   podManagementPolicy: Parallel
