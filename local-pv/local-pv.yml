@@ -1,0 +1,160 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-0
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-0"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-1
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-1"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-2
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-2"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-3
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-3"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-4
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-4"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-5
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-5"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-6
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-6"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-7
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-7"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-8
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-8"
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-9
+  labels:
+    type: local
+spec:
+  storageClassName: geode-storage
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/k8sdata/local-pv-9"
+  capacity:
+    storage: 2Gi
